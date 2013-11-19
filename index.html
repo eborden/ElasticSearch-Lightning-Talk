@@ -1,0 +1,421 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>ElasticSearch</title>
+
+		<meta name="description" content="ElasticSearch Lightning talk">
+		<meta name="author" content="Evan Rutledge Borden">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="revealjs/css/reveal.min.css">
+		<link rel="stylesheet" href="revealjs/css/theme/default.css" id="theme">
+
+		<!-- For syntax highlighting -->
+        <link rel="stylesheet" href="revealjs/lib/css/zenburn.css">
+        <style>
+            .reveal .cloud {margin: 0;list-style: none; text-align: center;}
+            .reveal .cloud li {display: inline-block;}
+            .reveal .cloud li:first-child{font-size: 1.1em;}
+            .reveal .cloud li:nth-child(2){font-size: 1.7em;}
+            .reveal .cloud li:nth-child(3){font-size: 1em;}
+            .reveal .cloud li:nth-child(4){font-size: 1.7em;}
+            .reveal .cloud li:nth-child(5){font-size: 1.4em;}
+            .reveal .cloud li:nth-child(6){font-size: 1.1em;}
+            .reveal .cloud li:nth-child(7){font-size: 1.8em;}
+            .reveal .cloud li:nth-child(8){font-size: 1em;}
+            .reveal .cloud li:nth-child(9){font-size: .9em;}
+            .reveal .cloud li:nth-child(10){font-size: 1.5em;}
+            .reveal blockquote em {color: red;}
+        </style>
+
+		<!-- If the query includes 'print-pdf', use the PDF print sheet -->
+		<script>
+			document.write( '<link rel="stylesheet" href="revealjs/css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="revealjs/lib/js/html5shiv.js"></script>
+		<![endif]-->
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+                <section>
+                    <section>
+                        <h1>ElasticSearch</h1>
+                        <h3>Distributed Full Text Search</h3>
+                        <p>
+                            <small><a href="http://www.evan-borden.com">Evan Borden</a> / <a href="http://twitter.com/evanborden">@evanborden</a></small>
+                        </p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>What is it?</h1>
+                    </section>
+                    <section>
+                        <h2>ElasticSearch is...</h2>
+                        <ul>
+                            <li>Distributed</li>
+                            <li>Full Text Search Engine</li>
+                            <li>Built On Apache Lucene - JVM</li>
+                            <li>JSON everything</li>
+                            <li>RESTful</li>
+                            <li>Colocation</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h1>What isn't it?</h1>
+                    </section>
+                    <section>
+                        <h2>"Schemaless"</g2>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Colocation</h1>
+                    </section>
+                    <section>
+                        <h2>Like entities in close proximity</h2>
+                    </section>
+                    <section>
+                        <h2>"Orange foxes are running wild"</h2>
+                        <p>to</p>
+                        <h2>"orang fox are run wild"</h2>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Structure</h1>
+                    </section>
+                    <section>
+                        <h2>5 Deep Russian Doll</h2>
+                        <ul>
+                            <li>Cluster
+                                <ul>
+                                    <li>Node
+                                        <ul>
+                                            <li>Index
+                                                <ul>
+                                                    <li>Type
+                                                        <ul>
+                                                            <li>Document</li>
+                                                        </ul>
+                                                    </li>
+                                                </ul>
+                                            </li>
+                                        </ul>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Cluster</h2>
+                        <p>Group Of Instances</p>
+                    </section>
+                    <section>
+                        <h2>Node</h2>
+                        <p>Instance Of ES</p>
+                    </section>
+                    <section>
+                        <h2>Index</h2>
+                        <p>Can approximate a database</p>
+                    </section>
+                    <section>
+                        <h2>Type</h2>
+                        <p>Can simulate a table</p>
+                    </section>
+                    <section>
+                        <h2>Document</h2>
+                        <p>Like a row</p>
+                    </section>
+                    <section>
+                        <h2>"Metaphors"</h2>
+                        <ul>
+                            <li>Cluster = Group of Instances</li>
+                            <li>Node = Instance of ES</li>
+                            <li>Index = Database</li>
+                            <li>Type = Table</li>
+                            <li>Document = Row</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Built to Scale</h1>
+                    </section>
+                    <section>
+                        <h2>Replacement for Apache Solr</h2>
+                    </section>
+                    <section>
+                        <h2>Shards and Replicas</h2>
+                        <p>Auto balanced</p>
+                        <pre><code>
+$ curl -XPUT 'http://localhost:9200/twitter/' -d '{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 3,
+            "number_of_replicas" : 2
+        }
+    }
+}'
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h2>Auto Document Routing</h2>
+                        <p>Also configurable for perf</p>
+                        <pre><code>
+$ cur -XPOST 'http://localhost:9200/store/order?routing=user123' -d '
+{
+   "productName":"sample",
+   "customerID":"user123"
+}'
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h2>Replication for Redundancy</h2>
+                        <ul>
+                            <li>Used when shard unreachable.</li>
+                            <li>Promoted and balanced on node failure.</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Near Realtime Updates</h2>
+                        <p>Synchronous update scheme</p>
+                        <p><small>Async configurable</small></p>
+                    </section>
+                    <section>
+                        <h2>No Transactions</h2>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Why use it?</h1>
+                    </section>
+                    <section>
+                        <h2>Fast, Flexible & Simple To Configure</h2>
+                        <p>Extremely robust features<p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Features</h1>
+                    </section>
+                    <section>
+                        <h2>Es Knows JSON</h2>
+                        <h3>Document</h3>
+                        <pre><code>
+$ cur -XPOST 'http://localhost:9200/store/order' -d '
+{
+    "items": ["foo", "bar", "baz"],
+    "customid": 1234,
+    "approved": true,
+    "coupon": {
+        "type": "buy1get1"
+    }
+}'
+                        </code></pre>
+
+                        <h3>Query</h3>
+                        <pre><code>
+$ cur -XPOST 'http://localhost:9200/store/order/_search' -d '
+{
+    "query": {
+        "term": {
+            "coupon.type": "buy1get1"
+        }
+    }
+}'
+                        </code></pre>
+                    </section>
+                    <section>
+                        <h2>Robust Analyzers</h2>
+                        <p>Natural Language Processing</p>
+                        <ul>
+                            <li>Stemming</li>
+                            <li>Ngrams</li>
+                            <li>Spelling Correction</li>
+                            <li>Stop Words</li>
+                            <li>Shingles</li>
+                            <li>...and more</li>
+                            <li>+Build your own</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>First Class Geodata</h2>
+                        <p>Geo points and Geo shapes</p>
+                    </section>
+                    <section>
+                        <h2>Multi Field Types</h2>
+                        <p>Store, Search and Retreive multiple formats.</p>
+                        <pre><code>/*...*/
+"properties" : {
+    "name" : {
+        "type" : "multi_field",
+        "fields" : {
+            "name" : {
+                "type" : "string",
+                "index" : "analyzed"},
+            "stemmed" : {
+                "type" : "string",
+                "index" : "analyzed",
+                "analyzer" : "snowball"},
+            "untouched" : {
+                "type" : "string",
+                "index" : "not_analyzed"}
+/*...*/</code></pre>
+                    </section>
+                    <section>
+                        <h2>Facets</h2>
+                        <p>For Free!</p><br/>
+                        <img src="facets.png" align="left" />
+                        <ul>
+                            <li>Terms</li>
+                            <li>Ranges</li>
+                            <li>Histograms</li>
+                            <li>Statistics</li>
+                            <li>Term Stats</li>
+                            <li>Geo Distances</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>Aggregations</h2>
+                        <p>Functionally composable DSL</p>
+                    </section>
+                    <section>
+                        <h2>Suggesters</h2>
+                        <ul>
+                            <li>term suggestion</li>
+                            <li>phrase suggestion</li>
+                            <li>auto complete</li>
+                            <li>spelling correction</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2>More Like This</h2>
+                        <p>Find more documents like yours</p>
+                    </section>
+                    <section>
+                        <h2>Percolation</h2>
+                        <p>Reverse indexing with queries</p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Flexibility</h1>
+                    </section>
+                    <section>
+                        <h2>No Boundaries</h2>
+                    </section>
+                    <section>
+                        <h2>Auto Node Discovery</h2>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Easy to Configure</h1>
+                    </section>
+                    <section>
+                        <h2>Works Out of the Box</h2>
+                    </section>
+                    <section>
+                        <h2>Defaults Are Performant</h2>
+                    </section>
+                    <section>
+                        <h2>Documentation Is Robust</h2>
+                    </section>
+                    <section>
+                        <h2>Shay Is Available</h2>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Gotchas</h1>
+                    </section>
+                    <section>
+                        <h2>Static Shards</h2>
+                        <p>Plan ahead</p>
+                    </section>
+                    <section>
+                        <h2>Requires Forethought</h2>
+                        <p>Know your data</p>
+                    </section>
+                    <section>
+                        <h2>Field Type Errors</h2>
+                        <p>Stay consistent</p>
+                    </section>
+                    <section>
+                        <h2>Latest JVM</h2>
+                        <p>Still backwards compatible</p>
+                    </section>
+                    <section>
+                        <h2>Memory Hungry</h2>
+                        <p>Isolate it</p>
+                    </section>
+                    <section>
+                        <h2>No Security</h2>
+                        <p>Firewall required</p>
+                    </section>
+                </section>
+
+                <section>
+                    <h1>Go Give it a Try</h1>
+                </section>
+
+                <section>
+                    <h1>Questions?</h1>
+                </section>
+			</div>
+
+		</div>
+
+		<script src="revealjs/lib/js/head.min.js"></script>
+		<script src="revealjs/js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'revealjs/lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'revealjs/plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'revealjs/plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'revealjs/plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
